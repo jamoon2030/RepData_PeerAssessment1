@@ -5,19 +5,40 @@ output:
     keep_md: true
 ---
 
-```{r setoptions, echo=TRUE}
+
+```r
 # load libraries
 library(knitr)
 library(lattice)
 library(ggplot2)
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 opts_chunk$set(echo = TRUE)
 ```
 
 
 ## 1. Loading and preprocessing the data 
-```{r}
 
+```r
 # load data
 if(!file.exists('activity.csv')){
     unzip('activity.zip')
@@ -31,7 +52,8 @@ data1 <- data[!is.na(data$step),]
 
 
 ## 2. What is mean total number of steps taken per day?
-```{r total_steps}
+
+```r
 # calculate the total number of steps taken per day
 summary1 <- data1 %>% group_by(date) %>%  summarise(total = sum(steps))
 
@@ -39,19 +61,32 @@ summary1 <- data1 %>% group_by(date) %>%  summarise(total = sum(steps))
 hist(summary1$total, main = "Total Number of Steps Taken Each Day", xlab = "")
 ```
 
+![](PA1_template_files/figure-html/total_steps-1.png)<!-- -->
+
 
 Mean total number of steps:
-```{r} 
+
+```r
 mean(summary1$total) 
 ```
 
+```
+## [1] 10766.19
+```
+
 Median total number of steps:
-```{r} 
+
+```r
 median(summary1$total)
 ```
 
+```
+## [1] 10765
+```
+
 ## 3. What is the average daily activity pattern?
-```{r average_daily_activity_pattern}
+
+```r
 # calculate the average number of steps taken by interval
 summary2 <- data1 %>% group_by(interval) %>%  summarise(mean = mean(steps))
 
@@ -59,10 +94,17 @@ summary2 <- data1 %>% group_by(interval) %>%  summarise(mean = mean(steps))
 plot(summary2$interval, summary2$mean, type = "l", xlab = "Interval", ylab = "Average Number of Steps", main = "Daily Activity Pattern")
 ```
 
+![](PA1_template_files/figure-html/average_daily_activity_pattern-1.png)<!-- -->
+
 
 Interval that conains the maximum number of steps:
-```{r} 
+
+```r
 summary2$interval[summary2$mean == max(summary2$mean)]
+```
+
+```
+## [1] 835
 ```
 
 
@@ -70,11 +112,17 @@ summary2$interval[summary2$mean == max(summary2$mean)]
 
 
 Total number of missing values:
-```{r} 
+
+```r
 nrow(data[is.na(data$steps),])
 ```
 
-```{r total_steps_imputed}
+```
+## [1] 2304
+```
+
+
+```r
 # create a vector of average number of steps per interval
 aveSteps <- rep(summary2$mean, 61)
 
@@ -86,13 +134,25 @@ summary3 <- data3 %>% group_by(date) %>%  summarise(total = sum(stepsImputed))
 hist(summary3$total, main = "Total Number of Steps Taken Each Day (Missing Values Imputed)", xlab = "")
 ```
 
+![](PA1_template_files/figure-html/total_steps_imputed-1.png)<!-- -->
+
 Mean total number of steps:
-```{r}
+
+```r
 mean(summary3$total)
 ```
+
+```
+## [1] 10766.19
+```
 Median total number of steps:
-```{r} 
+
+```r
 median(summary3$total)
+```
+
+```
+## [1] 10766.19
 ```
 
 
@@ -101,7 +161,8 @@ Observation: Imputing missing values did not change the mean total number of ste
 
 ## 5. Are there differences in activity patterns between weekdays and weekends?
 
-```{r diff_activity_patterns}
+
+```r
 # Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 data3 <- data3 %>% mutate(wd = as.factor(ifelse(weekdays(date) %in% c("Saturday","Sunday"),"weekend","weekday")))
 summary4 <- data3 %>% group_by(wd, interval) %>%  summarise(mean = mean(stepsImputed))
@@ -109,6 +170,8 @@ summary4 <- data3 %>% group_by(wd, interval) %>%  summarise(mean = mean(stepsImp
 #Make a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 xyplot(mean ~ interval | wd, data = summary4, type = "l", main="Daily Activity Patterns", xlab="Interval", ylab = "Number of steps", layout=c(1,2))
 ```
+
+![](PA1_template_files/figure-html/diff_activity_patterns-1.png)<!-- -->
 
 
 Observation: Compared with weekends, the number of steps in weekdays starts rising at an earlier point (interval around 500) and has a higher peak (over 200 steps). Between intervals 1000 and 2000, the number of steps is overall higher during weekends than during weekdays. The number starts declining at a later point during weekends (after interval 2000) than during weekdays (before interval 2000).
